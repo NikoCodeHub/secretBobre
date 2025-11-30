@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import { database } from './firebase';
+import { ref, onValue, set, update } from 'firebase/database';
 
 // Teilnehmer-Liste
 const participants = [
@@ -7,7 +9,7 @@ const participants = [
   'Leander', 'Jonas', 'Felix', 'Gustav', 'Jeri',
   'Kilian', 'Christoph', 'Marius', 'Robert', 'Moritz',
   'Sten', 'Tammo', 'Tillman', 'Gelimer', 'Erik',
-  'Piepen', 'Benni', 'Theo'
+  'Piepen', 'Benni', 'Theo', 'Malin'
 ];
 
 // Funktion zum Erstellen der Zuordnungen
@@ -57,30 +59,30 @@ function App() {
   const [showResult, setShowResult] = useState(false);
   const [giftRecipient, setGiftRecipient] = useState('');
 
-  // Lade Spielstand beim Start
+  // Lade Spielstand beim Start und synchronisiere mit Firebase
   useEffect(() => {
-    const saved = localStorage.getItem('wichtelnGameState');
-    if (saved) {
-      const loadedState = JSON.parse(saved);
-      setGameState(loadedState);
-    } else {
-      // Erstelle neue Zuordnungen
-      const assignments = createAssignments();
-      const newState = {
-        assignments,
-        drawnBy: []
-      };
-      setGameState(newState);
-      localStorage.setItem('wichtelnGameState', JSON.stringify(newState));
-    }
-  }, []);
+    const gameRef = ref(database, 'wichtelnGame');
 
-  // Speichere Spielstand bei Änderungen
-  useEffect(() => {
-    if (Object.keys(gameState.assignments).length > 0) {
-      localStorage.setItem('wichtelnGameState', JSON.stringify(gameState));
-    }
-  }, [gameState]);
+    // Echtzeit-Listener für Änderungen
+    const unsubscribe = onValue(gameRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setGameState(data);
+      } else {
+        // Erstelle neue Zuordnungen, wenn noch keine existieren
+        const assignments = createAssignments();
+        const newState = {
+          assignments,
+          drawnBy: []
+        };
+        setGameState(newState);
+        set(gameRef, newState);
+      }
+    });
+
+    // Cleanup-Funktion
+    return () => unsubscribe();
+  }, []);
 
   // Los ziehen
   const drawName = () => {
@@ -99,11 +101,10 @@ function App() {
     setGiftRecipient(recipient);
     setShowResult(true);
 
-    // Markiere als gezogen
-    setGameState(prev => ({
-      ...prev,
-      drawnBy: [...prev.drawnBy, selectedName]
-    }));
+    // Markiere als gezogen und synchronisiere mit Firebase
+    const gameRef = ref(database, 'wichtelnGame/drawnBy');
+    const newDrawnBy = [...gameState.drawnBy, selectedName];
+    set(gameRef, newDrawnBy);
 
     // Scroll zum Ergebnis
     setTimeout(() => {
@@ -119,7 +120,11 @@ function App() {
         assignments,
         drawnBy: []
       };
-      setGameState(newState);
+
+      // Synchronisiere mit Firebase
+      const gameRef = ref(database, 'wichtelnGame');
+      set(gameRef, newState);
+
       setShowResult(false);
       setSelectedName('');
       alert('Das Spiel wurde zurückgesetzt! Die Biber haben neue Lose vorbereitet! 🎁');
