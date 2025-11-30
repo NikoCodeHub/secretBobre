@@ -62,27 +62,64 @@ function App() {
   // Lade Spielstand beim Start und synchronisiere mit Firebase
   useEffect(() => {
     const gameRef = ref(database, 'wichtelnGame');
+    let unsubscribe = () => {};
 
-    // Echtzeit-Listener für Änderungen
-    const unsubscribe = onValue(gameRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setGameState(data);
-      } else {
-        // Erstelle neue Zuordnungen, wenn noch keine existieren
-        const assignments = createAssignments();
-        const newState = {
-          assignments,
-          drawnBy: []
-        };
-        setGameState(newState);
-        set(gameRef, newState);
-      }
-    });
+    // Versuche Firebase zu verwenden
+    try {
+      // Echtzeit-Listener für Änderungen
+      unsubscribe = onValue(gameRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setGameState(data);
+          // Speichere auch in localStorage als Backup
+          localStorage.setItem('wichtelnGame', JSON.stringify(data));
+        } else {
+          // Erstelle neue Zuordnungen, wenn noch keine existieren
+          initializeGame();
+        }
+      }, (error) => {
+        console.warn('Firebase error, using localStorage:', error);
+        // Fallback auf localStorage
+        loadFromLocalStorage();
+      });
+    } catch (error) {
+      console.warn('Firebase not available, using localStorage:', error);
+      // Fallback auf localStorage
+      loadFromLocalStorage();
+    }
 
     // Cleanup-Funktion
     return () => unsubscribe();
   }, []);
+
+  // Initialisiere neues Spiel
+  const initializeGame = () => {
+    const assignments = createAssignments();
+    const newState = {
+      assignments,
+      drawnBy: []
+    };
+    setGameState(newState);
+
+    // Speichere in Firebase und localStorage
+    try {
+      const gameRef = ref(database, 'wichtelnGame');
+      set(gameRef, newState);
+    } catch (error) {
+      console.warn('Could not save to Firebase:', error);
+    }
+    localStorage.setItem('wichtelnGame', JSON.stringify(newState));
+  };
+
+  // Lade von localStorage
+  const loadFromLocalStorage = () => {
+    const saved = localStorage.getItem('wichtelnGame');
+    if (saved) {
+      setGameState(JSON.parse(saved));
+    } else {
+      initializeGame();
+    }
+  };
 
   // Los ziehen
   const drawName = () => {
@@ -101,10 +138,19 @@ function App() {
     setGiftRecipient(recipient);
     setShowResult(true);
 
-    // Markiere als gezogen und synchronisiere mit Firebase
-    const gameRef = ref(database, 'wichtelnGame/drawnBy');
+    // Markiere als gezogen und aktualisiere State
     const newDrawnBy = [...gameState.drawnBy, selectedName];
-    set(gameRef, newDrawnBy);
+    const newState = { ...gameState, drawnBy: newDrawnBy };
+    setGameState(newState);
+
+    // Synchronisiere mit Firebase und localStorage
+    try {
+      const gameRef = ref(database, 'wichtelnGame');
+      update(gameRef, { drawnBy: newDrawnBy });
+    } catch (error) {
+      console.warn('Could not update Firebase:', error);
+    }
+    localStorage.setItem('wichtelnGame', JSON.stringify(newState));
 
     // Scroll zum Ergebnis
     setTimeout(() => {
@@ -121,9 +167,16 @@ function App() {
         drawnBy: []
       };
 
-      // Synchronisiere mit Firebase
-      const gameRef = ref(database, 'wichtelnGame');
-      set(gameRef, newState);
+      setGameState(newState);
+
+      // Synchronisiere mit Firebase und localStorage
+      try {
+        const gameRef = ref(database, 'wichtelnGame');
+        set(gameRef, newState);
+      } catch (error) {
+        console.warn('Could not reset in Firebase:', error);
+      }
+      localStorage.setItem('wichtelnGame', JSON.stringify(newState));
 
       setShowResult(false);
       setSelectedName('');
