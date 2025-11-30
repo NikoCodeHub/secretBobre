@@ -1,0 +1,291 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Biber Animation im Hintergrund */
+.beaver-bg {
+    position: fixed;
+    font-size: 3rem;
+    opacity: 0.15;
+    animation: float 20s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.beaver-img-bg {
+    position: fixed;
+    opacity: 0.15;
+    animation: float 20s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-30px) rotate(5deg); }
+    50% { transform: translateY(-15px) rotate(-5deg); }
+    75% { transform: translateY(-40px) rotate(3deg); }
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #654321;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.beaver-header {
+    text-align: center;
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: wiggle 2s infinite;
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+.subtitle {
+    text-align: center;
+    color: #8B4513;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.section {
+    margin: 30px 0;
+    padding: 20px;
+    background: #FFF8DC;
+    border-radius: 15px;
+    border: 3px solid #DEB887;
+}
+
+.section h2 {
+    color: #654321;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section h2 .beaver-icon {
+    font-size: 1.5rem;
+}
+
+select, button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    border: 2px solid #8B4513;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+select {
+    background: white;
+}
+
+button {
+    background: linear-gradient(135deg, #D2691E 0%, #8B4513 100%);
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.result {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #FFE4B5 0%, #FFDAB9 100%);
+    border-radius: 15px;
+    margin-top: 20px;
+    border: 3px solid #D2691E;
+}
+
+.result.show {
+    display: block;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gift-name {
+    font-size: 2.5rem;
+    color: #8B4513;
+    font-weight: bold;
+    margin: 20px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.beaver-celebration {
+    font-size: 5rem;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.participants-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.participant {
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #DEB887;
+    transition: all 0.3s;
+}
+
+.participant.drawn {
+    background: #90EE90;
+    border-color: #228B22;
+    opacity: 0.7;
+}
+
+.participant.not-drawn {
+    background: #FFE4B5;
+    border-color: #D2691E;
+    font-weight: bold;
+}
+
+.status-icon {
+    margin-right: 5px;
+}
+
+.info-box {
+    background: #E6F3FF;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 5px solid #4A90E2;
+    margin: 20px 0;
+}
+
+.beaver-dam {
+    text-align: center;
+    margin: 20px 0;
+    filter: grayscale(0.3);
+}
+
+.beaver-dam img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .beaver-header {
+        font-size: 3rem;
+    }
+
+    .participants-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .container {
+        padding: 20px;
+    }
+}
+
+.reset-section {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 3px dashed #8B4513;
+}
+
+.warning {
+    background: #FFE4E1;
+    border: 2px solid #DC143C;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    color: #8B0000;
+}
+
+.image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.image-gallery img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+.image-gallery img:hover {
+    transform: scale(1.05);
+}
