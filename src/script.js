@@ -4,7 +4,7 @@ const participants = [
     'Leander', 'Jonas', 'Felix', 'Gustav', 'Jeri',
     'Kilian', 'Christoph', 'Marius', 'Robert', 'Moritz',
     'Sten', 'Tammo', 'Tillman', 'Gelimer', 'Erik',
-    'Piepen', 'Benni'
+    'Piepen', 'Benni', 'Theo'
 ];
 
 // Lokaler Speicher für den Spielstand
